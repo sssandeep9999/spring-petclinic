@@ -6,12 +6,12 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime (FIXED)
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-# 🔥 Update OS packages (Fix Trivy HIGH issues)
-RUN apk update && apk upgrade
+# ✅ correct package manager (Debian-based)
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
 # Copy jar
 COPY --from=build /app/target/spring-petclinic-4.0.0-SNAPSHOT.jar app.jar
