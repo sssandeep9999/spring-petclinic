@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'maven3'
+    }
+
 
     environment {
         SONAR_URL = "http://172.17.0.1:9000"
