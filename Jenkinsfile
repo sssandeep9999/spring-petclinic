@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build (Maven)') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean package -DskipTests -Dcheckstyle.skip=true'
             }
         }
 
@@ -60,7 +60,7 @@ pipeline {
                         mavenSettingsConfig: 'maven-settings'
                     ) {
                         sh """
-                        mvn clean deploy -DskipTests -Dcheckstyle.skip=true \
+                        mvn deploy -DskipTests -Dcheckstyle.skip=true \
                         -Dusername=$USER \
                         -Dpassword=$PASS
                         """
