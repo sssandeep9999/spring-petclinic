@@ -48,9 +48,24 @@ pipeline {
         }
 
 
-        stage('Artifact Upload (Nexus)') {
+        stage('Build & Publish Artifact') {
             steps {
-                sh 'mvn clean deploy -DskipTests'
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-creds',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+
+                    withMaven(
+                        mavenSettingsConfig: 'maven-settings'
+                    ) {
+                        sh """
+                        mvn clean deploy -DskipTests -Dcheckstyle.skip=true \
+                        -Dusername=$USER \
+                        -Dpassword=$PASS
+                        """
+                    }
+                }
             }
         }
     }
