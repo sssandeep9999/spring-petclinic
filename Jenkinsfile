@@ -69,12 +69,31 @@ pipeline {
         }
     }
 
+    pipeline {
+    agent any
+    
+    // ... (rest of your tools and env)
+
+    stages {
+        // ... (your checkout and build stages)
+    }
+
     post {
-        success {
-            publishChecks name: 'ci/jenkins', conclusion: 'SUCCESS'
-        }
-        failure {
-            publishChecks name: 'ci/jenkins', conclusion: 'FAILURE'
+        always {
+            script {
+                // We manually find the SHA. If env.GIT_COMMIT is empty, 
+                // we try to get it from the git command.
+                def commitSha = env.GIT_COMMIT ?: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+
+                publishChecks(
+                    name: "Jenkins CI",
+                    title: "Build Result",
+                    summary: "Build finished with status: ${currentBuild.currentResult}",
+                    detailsURL: "${env.BUILD_URL}",
+                    // THIS IS THE KEY: We tell it exactly which commit to mark in GitHub
+                    commitSha: commitSha
+                )
+            }
         }
     }
 }
