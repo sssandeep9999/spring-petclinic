@@ -87,6 +87,7 @@ pipeline {
                 script {
                     withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                         githubNotify context: 'CI Pipeline', status: 'SUCCESS'
+                    }
                 }
             }
         }
