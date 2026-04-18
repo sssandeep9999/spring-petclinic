@@ -22,10 +22,16 @@ pipeline {
             }
         }
 
-        // 🔥 SET GITHUB STATUS → PENDING
         stage('Set Status: Pending') {
             steps {
-                githubNotify context: 'ci/jenkins', status: 'PENDING'
+                script {
+                    setGitHubPullRequestStatus(
+                        context: 'ci/jenkins',
+                        state: 'PENDING',
+                        repo: env.GIT_URL,
+                        commitId: env.GIT_COMMIT
+                    )
+                }
             }
         }
 
@@ -42,7 +48,7 @@ pipeline {
                     mvn sonar:sonar \
                     -Dsonar.projectKey=petclinic-app \
                     -Dsonar.host.url=$SONAR_URL \
-                    -Dsonar.token=$SONAR_TOKEN
+                    -Dsonar.login=$SONAR_TOKEN
                     '''
                 }
             }
@@ -74,19 +80,28 @@ pipeline {
                 }
             }
         }
-
-        // 🔥 SET GITHUB STATUS → SUCCESS
-        stage('Set Status: Success') {
-            steps {
-                githubNotify context: 'ci/jenkins', status: 'SUCCESS'
-            }
-        }
     }
 
-    // 🔥 HANDLE FAILURE
     post {
+        success {
+            script {
+                setGitHubPullRequestStatus(
+                    context: 'ci/jenkins',
+                    state: 'SUCCESS',
+                    repo: env.GIT_URL,
+                    commitId: env.GIT_COMMIT
+                )
+            }
+        }
         failure {
-            githubNotify context: 'ci/jenkins', status: 'FAILURE'
+            script {
+                setGitHubPullRequestStatus(
+                    context: 'ci/jenkins',
+                    state: 'FAILURE',
+                    repo: env.GIT_URL,
+                    commitId: env.GIT_COMMIT
+                )
+            }
         }
     }
 }
