@@ -26,7 +26,9 @@ pipeline {
         stage('Set Pending Status') {
             steps {
                 script {
-                    githubNotify context: 'CI Pipeline', status: 'PENDING'
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        githubNotify context: 'CI Pipeline', status: 'PENDING'
+                    }
                 }
             }
         }
@@ -83,7 +85,8 @@ pipeline {
         stage('Set Success Status') {
             steps {
                 script {
-                    githubNotify context: 'CI Pipeline', status: 'SUCCESS'
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        githubNotify context: 'CI Pipeline', status: 'SUCCESS'
                 }
             }
         }
@@ -93,7 +96,8 @@ pipeline {
     post {
         failure {
             script {
-                githubNotify context: 'CI Pipeline', status: 'FAILURE'
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    githubNotify context: 'CI Pipeline', status: 'FAILURE'
             }
         }
     }
