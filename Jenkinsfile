@@ -9,15 +9,12 @@ pipeline {
         maven 'maven3'
     }
 
-
     environment {
         SONAR_URL = "http://172.17.0.1:9000"
         SONAR_TOKEN = credentials('sonar-token')
     }
 
-
     stages {
-
 
         stage('Checkout Code') {
             steps {
@@ -25,13 +22,20 @@ pipeline {
             }
         }
 
+        // 🔥 1. SET PENDING STATUS
+        stage('Set Pending Status') {
+            steps {
+                script {
+                    githubNotify context: 'CI Pipeline', status: 'PENDING'
+                }
+            }
+        }
 
         stage('Build Maven') {
             steps {
                 sh 'mvn clean package -DskipTests -Dcheckstyle.skip=true'
             }
         }
-
 
         stage('SonarQube Analysis') {
             steps {
@@ -46,7 +50,6 @@ pipeline {
             }
         }
 
-
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -54,7 +57,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Build & Publish Artifact') {
             steps {
@@ -76,6 +78,23 @@ pipeline {
                 }
             }
         }
+
+        // 🔥 2. SET SUCCESS STATUS
+        stage('Set Success Status') {
+            steps {
+                script {
+                    githubNotify context: 'CI Pipeline', status: 'SUCCESS'
+                }
+            }
+        }
+    }
+
+    // 🔥 3. FAILURE HANDLING
+    post {
+        failure {
+            script {
+                githubNotify context: 'CI Pipeline', status: 'FAILURE'
+            }
+        }
     }
 }
-
