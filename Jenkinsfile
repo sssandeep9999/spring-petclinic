@@ -22,6 +22,13 @@ pipeline {
             }
         }
 
+        // 🔥 SET GITHUB STATUS → PENDING
+        stage('Set Status: Pending') {
+            steps {
+                githubNotify context: 'ci/jenkins', status: 'PENDING'
+            }
+        }
+
         stage('Build Maven') {
             steps {
                 sh 'mvn clean package -DskipTests -Dcheckstyle.skip=true'
@@ -35,7 +42,7 @@ pipeline {
                     mvn sonar:sonar \
                     -Dsonar.projectKey=petclinic-app \
                     -Dsonar.host.url=$SONAR_URL \
-                    -Dsonar.login=$SONAR_TOKEN
+                    -Dsonar.token=$SONAR_TOKEN
                     '''
                 }
             }
@@ -57,17 +64,29 @@ pipeline {
                     passwordVariable: 'PASS'
                 )]) {
 
-                    withMaven(
-                        mavenSettingsConfig: 'maven-settings'
-                    ) {
-                        sh """
+                    withMaven(mavenSettingsConfig: 'maven-settings') {
+                        sh '''
                         mvn deploy -DskipTests -Dcheckstyle.skip=true \
                         -Dusername=$USER \
                         -Dpassword=$PASS
-                        """
+                        '''
                     }
                 }
             }
+        }
+
+        // 🔥 SET GITHUB STATUS → SUCCESS
+        stage('Set Status: Success') {
+            steps {
+                githubNotify context: 'ci/jenkins', status: 'SUCCESS'
+            }
+        }
+    }
+
+    // 🔥 HANDLE FAILURE
+    post {
+        failure {
+            githubNotify context: 'ci/jenkins', status: 'FAILURE'
         }
     }
 }
