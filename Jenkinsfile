@@ -69,14 +69,6 @@ pipeline {
         }
     }
 
-    pipeline {
-    agent any
-    
-    // ... (rest of your tools and env)
-
-    stages {
-        // ... (your checkout and build stages)
-    }
 
     post {
         always {
