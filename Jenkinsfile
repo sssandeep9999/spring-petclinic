@@ -22,17 +22,6 @@ pipeline {
             }
         }
 
-        // 🔥 1. SET PENDING STATUS
-        stage('Set Pending Status') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                        githubNotify context: 'CI Pipeline', status: 'PENDING'
-                    }
-                }
-            }
-        }
-
         stage('Build Maven') {
             steps {
                 sh 'mvn clean package -DskipTests -Dcheckstyle.skip=true'
@@ -77,28 +66,6 @@ pipeline {
                         -Dpassword=$PASS
                         """
                     }
-                }
-            }
-        }
-
-        // 🔥 2. SET SUCCESS STATUS
-        stage('Set Success Status') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                        githubNotify context: 'CI Pipeline', status: 'SUCCESS'
-                    }
-                }
-            }
-        }
-    }
-
-    // 🔥 3. FAILURE HANDLING
-    post {
-        failure {
-            script {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                    githubNotify context: 'CI Pipeline', status: 'FAILURE'
                 }
             }
         }
