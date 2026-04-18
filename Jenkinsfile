@@ -22,19 +22,6 @@ pipeline {
             }
         }
 
-        stage('Set Status: Pending') {
-            steps {
-                script {
-                    setGitHubPullRequestStatus(
-                        context: 'ci/jenkins',
-                        state: 'PENDING',
-                        repo: env.GIT_URL,
-                        commitId: env.GIT_COMMIT
-                    )
-                }
-            }
-        }
-
         stage('Build Maven') {
             steps {
                 sh 'mvn clean package -DskipTests -Dcheckstyle.skip=true'
@@ -84,24 +71,10 @@ pipeline {
 
     post {
         success {
-            script {
-                setGitHubPullRequestStatus(
-                    context: 'ci/jenkins',
-                    state: 'SUCCESS',
-                    repo: env.GIT_URL,
-                    commitId: env.GIT_COMMIT
-                )
-            }
+            publishChecks name: 'ci/jenkins', conclusion: 'SUCCESS'
         }
         failure {
-            script {
-                setGitHubPullRequestStatus(
-                    context: 'ci/jenkins',
-                    state: 'FAILURE',
-                    repo: env.GIT_URL,
-                    commitId: env.GIT_COMMIT
-                )
-            }
+            publishChecks name: 'ci/jenkins', conclusion: 'FAILURE'
         }
     }
 }
