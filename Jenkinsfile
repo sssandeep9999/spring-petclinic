@@ -79,16 +79,25 @@ pipeline {
     ///}
     post {
         success {
-            step([$class: 'GitHubCommitStatusSetter',
-                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                statusResultSource: [$class: 'AnyBuildResult', state: 'SUCCESS', message: 'Build Passed']
-            ])
+            script {
+                updateGitHubStatus('SUCCESS', 'Build Passed!')
+            }
         }
         failure {
-            step([$class: 'GitHubCommitStatusSetter',
-                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                statusResultSource: [$class: 'AnyBuildResult', state: 'FAILURE', message: 'Build Failed']
-            ])
+            script {
+                updateGitHubStatus('FAILURE', 'Build Failed - Check Jenkins logs.')
+            }
         }
+    }
+
+    def updateGitHubStatus(String state, String message) {
+        step([
+            $class: 'GitHubCommitStatusSetter',
+            contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
+            statusResultSource: [$class: 'ManuallyEnteredStatusResultSource',
+                state: state,
+                message: message
+            ]
+        ])
     }
 }
