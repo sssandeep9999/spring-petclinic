@@ -30,7 +30,7 @@ pipeline {
 
         stage('Build Maven') {
             steps {
-                sh 'mvn clean package -DskipTests -Dcheckstyle.skip='
+                sh 'mvn clean package -DskipTests -Dcheckstyle.skip=false'
             }
         }
 
@@ -75,34 +75,23 @@ pipeline {
     }
 
     post {
-        success {
-            script {
-                updateGitHubStatus('SUCCESS', 'Build Passed! Artifacts published to Nexus.')
+    always {
+        script {
+            def state = 'SUCCESS'
+
+            if (currentBuild.currentResult == 'FAILURE') {
+                state = 'FAILURE'
+            } else if (currentBuild.currentResult == 'ABORTED') {
+                state = 'ERROR'
             }
-        }
-        failure {
-            script {
-                updateGitHubStatus('FAILURE', 'Build Failed! Please check Jenkins console output.')
-            }
-        }
-        aborted {
-            script {
-                updateGitHubStatus('ERROR', 'Build was aborted.')
-            }
+
+            step([$class: 'GitHubCommitStatusSetter',
+                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
+                statusResultSource: [$class: 'ManuallyEnteredStatusResultSource',
+                    state: state,
+                    message: "Build ${currentBuild.currentResult}"
+                ]
+            ])
         }
     }
-}
-
-// Helper function to handle GitHub API communication
-def updateGitHubStatus(String state, String message) {
-    step([
-        $class: 'GitHubCommitStatusSetter',
-        // Explicitly defining the repo helps standard pipelines find the right PR
-        reposSource: [$class: 'ManuallyEnteredRepositorySource', url: env.REPO_URL],
-        contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-        statusResultSource: [$class: 'ManuallyEnteredStatusResultSource',
-            state: state,
-            message: message
-        ]
-    ])
 }
