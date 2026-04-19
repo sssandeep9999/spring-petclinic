@@ -8,9 +8,19 @@ pipeline {
     environment {
         SONAR_URL = "http://172.17.0.1:9000"
         SONAR_TOKEN = credentials('sonar-token')
+        // Replace with your actual repo URL
+        REPO_URL = "https://github.com/sssandeep9999/spring-petclinic"
     }
 
     stages {
+        stage('Prepare') {
+            steps {
+                script {
+                    // Set status to PENDING as soon as the build starts
+                    updateGitHubStatus('PENDING', 'Jenkins build is in progress...')
+                }
+            }
+        }
 
         stage('Checkout Code') {
             steps {
@@ -52,7 +62,6 @@ pipeline {
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
-
                     withMaven(mavenSettingsConfig: 'maven-settings') {
                         sh '''
                         mvn deploy -DskipTests -Dcheckstyle.skip=true \
@@ -65,39 +74,35 @@ pipeline {
         }
     }
 
-
-    ////post {
-       // always {
-         //   step([$class: 'GitHubCommitStatusSetter',
-        //        contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-       //         errorHandlers: [[$class: 'ChangingBuildStatusErrorHandler', result: 'UNSTABLE']],
-      //          statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-             //       [$class: 'AnyBuildResult', message: 'Build Finished', state: 'SUCCESS']
-           //     ]]
-         //   ])
-       // }
-    ///}
     post {
         success {
             script {
-                updateGitHubStatus('SUCCESS', 'Build Passed!')
+                updateGitHubStatus('SUCCESS', 'Build Passed! Artifacts published to Nexus.')
             }
         }
         failure {
             script {
-                updateGitHubStatus('FAILURE', 'Build Failed - Check Jenkins logs.')
+                updateGitHubStatus('FAILURE', 'Build Failed! Please check Jenkins console output.')
+            }
+        }
+        aborted {
+            script {
+                updateGitHubStatus('ERROR', 'Build was aborted.')
             }
         }
     }
+}
 
-    def updateGitHubStatus(String state, String message) {
-        step([
-            $class: 'GitHubCommitStatusSetter',
-            contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-            statusResultSource: [$class: 'ManuallyEnteredStatusResultSource',
-                state: state,
-                message: message
-            ]
-        ])
-    }
+// Helper function to handle GitHub API communication
+def updateGitHubStatus(String state, String message) {
+    step([
+        $class: 'GitHubCommitStatusSetter',
+        // Explicitly defining the repo helps standard pipelines find the right PR
+        reposSource: [$class: 'ManuallyEnteredRepositorySource', url: env.REPO_URL],
+        contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
+        statusResultSource: [$class: 'ManuallyEnteredStatusResultSource',
+            state: state,
+            message: message
+        ]
+    ])
 }
