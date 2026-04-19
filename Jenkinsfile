@@ -66,14 +66,28 @@ pipeline {
     }
 
 
+    ////post {
+       // always {
+         //   step([$class: 'GitHubCommitStatusSetter',
+        //        contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
+       //         errorHandlers: [[$class: 'ChangingBuildStatusErrorHandler', result: 'UNSTABLE']],
+      //          statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
+             //       [$class: 'AnyBuildResult', message: 'Build Finished', state: 'SUCCESS']
+           //     ]]
+         //   ])
+       // }
+    ///}
     post {
-        always {
+        success {
             step([$class: 'GitHubCommitStatusSetter',
                 contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                errorHandlers: [[$class: 'ChangingBuildStatusErrorHandler', result: 'UNSTABLE']],
-                statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-                    [$class: 'AnyBuildResult', message: 'Build Finished', state: 'SUCCESS']
-                ]]
+                statusResultSource: [$class: 'AnyBuildResult', state: 'SUCCESS', message: 'Build Passed']
+            ])
+        }
+        failure {
+            step([$class: 'GitHubCommitStatusSetter',
+                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
+                statusResultSource: [$class: 'AnyBuildResult', state: 'FAILURE', message: 'Build Failed']
             ])
         }
     }
