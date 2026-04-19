@@ -75,23 +75,24 @@ pipeline {
     }
 
     post {
-    always {
-        script {
-            def state = 'SUCCESS'
+        always {
+            script {
+                def state = 'SUCCESS'
 
-            if (currentBuild.currentResult == 'FAILURE') {
-                state = 'FAILURE'
-            } else if (currentBuild.currentResult == 'ABORTED') {
-                state = 'ERROR'
+                if (currentBuild.currentResult == 'FAILURE') {
+                    state = 'FAILURE'
+                } else if (currentBuild.currentResult == 'ABORTED') {
+                    state = 'ERROR'
+                }
+
+                step([$class: 'GitHubCommitStatusSetter',
+                    contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
+                    statusResultSource: [$class: 'ManuallyEnteredStatusResultSource',
+                        state: state,
+                        message: "Build ${currentBuild.currentResult}"
+                    ]
+                ])
             }
-
-            step([$class: 'GitHubCommitStatusSetter',
-                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                statusResultSource: [$class: 'ManuallyEnteredStatusResultSource',
-                    state: state,
-                    message: "Build ${currentBuild.currentResult}"
-                ]
-            ])
         }
     }
 }
