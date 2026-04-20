@@ -47,21 +47,10 @@ pipeline {
     }
 
     post {
-        success {
+        always {
             step([$class: 'GitHubCommitStatusSetter',
                 contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-                    [$class: 'AnyBuildResult', state: 'SUCCESS', message: 'Build Passed']
-                ]]
-            ])
-        }
-
-        failure {
-            step([$class: 'GitHubCommitStatusSetter',
-                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-                    [$class: 'AnyBuildResult', state: 'FAILURE', message: 'Build Failed']
-                ]]
+                statusResultSource: [$class: 'DefaultStatusResultSource']
             ])
         }
     }
