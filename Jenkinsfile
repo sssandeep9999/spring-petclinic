@@ -48,7 +48,10 @@ pipeline {
 
     post {
         always {
-            publishChecks name: 'ci/jenkins-build'
+            step([$class: 'GitHubCommitStatusSetter',
+                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
+                statusResultSource: [$class: 'DefaultStatusResultSource']
+            ])
         }
     }
 }
