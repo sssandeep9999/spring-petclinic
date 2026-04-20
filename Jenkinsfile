@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                sh 'mvn clean verify -DskipTests -Dcheckstyle.skip='
+                sh 'mvn clean verify -DskipTests -Dcheckstyle.skip=true'
             }
         }
 
