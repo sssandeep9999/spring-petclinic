@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    options {
-        skipDefaultCheckout(true)
-    }
-
     tools {
         maven 'maven3'
     }
@@ -15,20 +11,19 @@ pipeline {
     }
 
     stages {
-
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Build Maven') {
+        stage('Build & Test') {
             steps {
-                sh 'mvn clean package -DskipTests -Dcheckstyle.skip=true'
+                sh 'mvn clean verify -DskipTests -Dcheckstyle.skip=true'
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
@@ -48,36 +43,13 @@ pipeline {
                 }
             }
         }
-
-        stage('Build & Publish Artifact') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'nexus-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-
-                    withMaven(mavenSettingsConfig: 'maven-settings') {
-                        sh '''
-                        mvn deploy -DskipTests -Dcheckstyle.skip=true \
-                        -Dusername=$USER \
-                        -Dpassword=$PASS
-                        '''
-                    }
-                }
-            }
-        }
     }
-
 
     post {
         always {
             step([$class: 'GitHubCommitStatusSetter',
                 contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                errorHandlers: [[$class: 'ChangingBuildStatusErrorHandler', result: 'UNSTABLE']],
-                statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-                    [$class: 'AnyBuildResult', message: 'Build Finished', state: 'SUCCESS']
-                ]]
+                statusResultSource: [$class: 'DefaultStatusResultSource']
             ])
         }
     }
