@@ -12,19 +12,25 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Build Maven') {
+        stage('Build & Test') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean verify -Dcheckstyle.skip=true'
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Publish Test Results') {
+            steps {
+                junit '**/target/surefire-reports/*.xml'
+            }
+        }
+
+        stage('SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
@@ -44,55 +50,11 @@ pipeline {
                 }
             }
         }
-
-        stage('Build & Publish Artifact') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'nexus-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-
-                    withMaven(mavenSettingsConfig: 'maven-settings') {
-                        sh '''
-                        mvn deploy -DskipTests -Dcheckstyle.skip=true \
-                        -Dusername=$USER \
-                        -Dpassword=$PASS
-                        '''
-                    }
-                }
-            }
-        }
     }
 
     post {
         always {
-            step([$class: 'GitHubCommitStatusSetter',
-                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                statusResultSource: [$class: 'ConditionalStatusResultSource', results: [
-
-                    // SUCCESS case
-                    [$class: 'BetterThanOrEqualBuildResult',
-                        result: 'SUCCESS',
-                        state: 'SUCCESS',
-                        message: 'Build Passed'
-                    ],
-
-                    // FAILURE case
-                    [$class: 'BetterThanOrEqualBuildResult',
-                        result: 'FAILURE',
-                        state: 'FAILURE',
-                        message: 'Build Failed'
-                    ],
-
-                    // ABORTED case
-                    [$class: 'BetterThanOrEqualBuildResult',
-                        result: 'ABORTED',
-                        state: 'ERROR',
-                        message: 'Build Aborted'
-                    ]
-                ]]
-            ])
+            publishChecks name: 'ci/jenkins-build'
         }
     }
 }
