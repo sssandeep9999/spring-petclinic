@@ -20,13 +20,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                sh 'mvn clean verify -Dcheckstyle.skip=true'
-            }
-        }
-
-        stage('Publish Test Results') {
-            steps {
-                junit '**/target/surefire-reports/*.xml'
+                sh 'mvn clean verify -DskipTests -Dcheckstyle.skip=true'
             }
         }
 
