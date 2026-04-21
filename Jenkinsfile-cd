@@ -1,0 +1,89 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "petclinic-app"
+        DEPLOYMENT = "petclinic-deployment"
+        DOCKERHUB_USER = "satyasandeep901"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        DOCKER_CREDS = "docker"
+        KUBE_NAMESPACE = "dev"
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                sh '''
+                trivy image \
+                --severity HIGH,CRITICAL \
+                --exit-code 1 \
+                --no-progress \
+                $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG
+                '''
+            }
+        }
+
+        stage('Login to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: DOCKER_CREDS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh 'docker push $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG'
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                kubectl set image deployment/petclinic-deployment \
+                petclinic-container=$DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG -n $KUBE_NAMESPACE
+                '''
+            }
+        }
+
+        stage('Verify Rollout') {
+            steps {
+                sh 'kubectl rollout status deployment $DEPLOYMENT -n $KUBE_NAMESPACE'
+            }
+        }
+
+        stage('App Health Check') {
+            steps {
+                sh 'curl -s http://172.18.0.2:31028/actuator/health | grep UP || exit 1'
+            }
+        }
+    }
+
+    post {
+        success {
+            mail to: 'satyasaisandeep9@gmail.com',
+            subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+            body: "Deployment successful."
+        }
+
+        failure {
+            sh 'kubectl rollout undo deployment $DEPLOYMENT -n $KUBE_NAMESPACE'
+            mail to: 'satyasaisandeep9@gmail.com',
+            subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+            body: "Deployment failed. Rolled back."
+        }
+    }
+}
