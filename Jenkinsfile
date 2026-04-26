@@ -19,7 +19,6 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo "Building branch: ${env.BRANCH_NAME}"
                 echo "GIT_BRANCH: ${env.GIT_BRANCH}"
             }
         }
