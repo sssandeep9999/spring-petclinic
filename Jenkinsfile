@@ -19,6 +19,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
+                checkout scm
                 echo "GIT_BRANCH: ${env.GIT_BRANCH}"
             }
         }
