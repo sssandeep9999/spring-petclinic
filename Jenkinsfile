@@ -19,7 +19,8 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                echo "Building branch: ${env.BRANCH_NAME}"
+                echo "GIT_BRANCH: ${env.GIT_BRANCH}"
             }
         }
 
