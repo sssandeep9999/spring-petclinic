@@ -11,9 +11,16 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
+                echo "GIT_BRANCH: ${env.GIT_BRANCH}"
             }
         }
 
