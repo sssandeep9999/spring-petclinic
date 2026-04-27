@@ -24,13 +24,13 @@ pipeline {
             }
         }
 
-        stage('Build & Test') {
+        stage('Build') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('SonarQube') {
+        stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
@@ -47,6 +47,20 @@ pipeline {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Publish Artifact') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-creds',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
+                )]) {
+                    withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: 'jdk17', maven: 'maven3') {
+                        sh 'mvn deploy -DskipTests'
+                    }
                 }
             }
         }
