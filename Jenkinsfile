@@ -59,7 +59,7 @@ pipeline {
                     usernameVariable: 'NEXUS_USER',
                     passwordVariable: 'NEXUS_PASS'
                 )]) {
-                    withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: 'jdk17', maven: 'maven3') {
+                    withMaven(globalMavenSettingsConfig: 'maven-settings', maven: 'maven3') {
                         sh 'mvn deploy -DskipTests'
                     }
                 }
