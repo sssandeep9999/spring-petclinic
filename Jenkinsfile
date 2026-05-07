@@ -60,7 +60,7 @@ pipeline {
                     passwordVariable: 'NEXUS_PASS'
                 )]) {
                     withMaven(globalMavenSettingsConfig: 'maven-settings', maven: 'maven3') {
-                        sh 'mvn deploy -DskipTests'
+                        sh 'mvn deploy -DskipTests -Dmaven.install.skip=true'
                     }
                 }
             }
