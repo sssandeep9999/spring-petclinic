@@ -3,4 +3,3 @@ CD pipeline test 2
 CD pipeline test 2
 CD pipeline test 3
 CD pipeline test 4
-test
