@@ -21,6 +21,10 @@ pipeline {
         IMAGE_NAME = "petclinic-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKERHUB_USER = "satyasandeep901"
+        POSTGRES_URL = "jdbc:postgresql://postgres:5432/petclinic"
+        POSTGRES_USER = "petclinic"
+        POSTGRES_PASS = "petclinic"
+        SPRING_DOCKER_COMPOSE_ENABLED = "false"
     }
 
     stages {
