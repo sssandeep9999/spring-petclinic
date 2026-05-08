@@ -7,6 +7,7 @@ pipeline {
         jdk 'jdk17'
     }
 
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         timestamps()
