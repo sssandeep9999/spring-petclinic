@@ -16,8 +16,7 @@ pipeline {
         SONAR_URL = "http://172.17.0.1:9000"
         SONAR_TOKEN = credentials('sonar-token')
 
-        NEXUS_USER = credentials('nexus-user')
-        NEXUS_PASS = credentials('nexus-pass')
+        NEXUS_CREDS = credentials('nexus-creds')
 
         IMAGE_NAME = "petclinic-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
