@@ -1,4 +1,5 @@
 pipeline {
+
     agent any
 
     tools {
@@ -9,9 +10,20 @@ pipeline {
     environment {
         SONAR_URL = "http://172.17.0.1:9000"
         SONAR_TOKEN = credentials('sonar-token')
+
+        NEXUS_CREDS = credentials('nexus-creds')
+
+        IMAGE_NAME = "petclinic-app"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        DOCKERHUB_USER = "satyasandeep901"
+        POSTGRES_URL = "jdbc:postgresql://postgres:5432/petclinic"
+        POSTGRES_USER = "petclinic"
+        POSTGRES_PASS = "petclinic"
+        SPRING_DOCKER_COMPOSE_ENABLED = "false"
     }
 
     stages {
+
         stage('Clean Workspace') {
             steps {
                 cleanWs()
@@ -21,7 +33,35 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                echo "GIT_BRANCH: ${env.GIT_BRANCH}"
+                echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+            }
+        }
+
+        /*
+        ==================================================
+        FEATURE BRANCH CI (FAST VALIDATION)
+        ==================================================
+        */
+
+        stage('Feature Build') {
+            when {
+                expression {
+                    env.BRANCH_NAME.startsWith("feature/")
+                }
+            }
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Feature Unit Test') {
+            when {
+                expression {
+                    env.BRANCH_NAME.startsWith("feature/")
+                }
+            }
+            steps {
+                sh 'mvn test'
             }
         }
 
@@ -34,17 +74,20 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
+                    sh """
                     mvn sonar:sonar \
                     -Dsonar.projectKey=petclinic-app \
                     -Dsonar.host.url=$SONAR_URL \
                     -Dsonar.login=$SONAR_TOKEN
-                    '''
+                    """
                 }
             }
         }
 
         stage('Quality Gate') {
+            when {
+                branch 'develop'
+            }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
@@ -68,6 +111,15 @@ pipeline {
     }
 
     post {
+
+        success {
+            echo "CI Pipeline Success - ${env.BRANCH_NAME}"
+        }
+
+        failure {
+            echo "CI Pipeline Failed - ${env.BRANCH_NAME}"
+        }
+
         always {
             step([$class: 'GitHubCommitStatusSetter',
                 contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
