@@ -7,12 +7,6 @@ pipeline {
         jdk 'jdk17'
     }
 
-
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-        timestamps()
-    }
-
     environment {
         SONAR_URL = "http://172.17.0.1:9000"
         SONAR_TOKEN = credentials('sonar-token')
@@ -71,34 +65,13 @@ pipeline {
             }
         }
 
-        /*
-        ==================================================
-        DEVELOP BRANCH FULL CI
-        ==================================================
-        */
-
-        stage('Develop Build Package') {
-            when {
-                branch 'develop'
-            }
+        stage('Build') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Develop Test') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                sh 'mvn test'
-            }
-        }
-
         stage('SonarQube Analysis') {
-            when {
-                branch 'develop'
-            }
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
@@ -122,68 +95,16 @@ pipeline {
             }
         }
 
-        /*
-        ==================================================
-        ARTIFACT PUBLISH
-        ==================================================
-        */
-
-        stage('Archive Artifact') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-            }
-        }
-
-        stage('Publish Artifact to Nexus') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                withMaven(
-                    maven: 'maven3',
-                    globalMavenSettingsConfig: 'maven-settings'
-                ) {
-                    sh 'mvn deploy -DskipTests -Dmaven.install.skip=true'
-                }
-            }
-        }
-
-        /*
-        ==================================================
-        DOCKER BUILD + PUSH
-        ==================================================
-        */
-
-        stage('Docker Build') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                sh """
-                docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG .
-                """
-            }
-        }
-
-        stage('Docker Push') {
-            when {
-                branch 'develop'
-            }
+        stage('Publish Artifact') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                    credentialsId: 'nexus-creds',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASS'
                 )]) {
-
-                    sh """
-                    echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-
-                    docker push $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG
-                    """
+                    withMaven(globalMavenSettingsConfig: 'maven-settings', maven: 'maven3') {
+                        sh 'mvn deploy -DskipTests -Dmaven.install.skip=true'
+                    }
                 }
             }
         }
