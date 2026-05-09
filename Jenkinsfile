@@ -245,12 +245,5 @@ pipeline {
         failure {
             echo "CI Pipeline Failed - ${env.BRANCH_NAME}"
         }
-
-        always {
-            step([$class: 'GitHubCommitStatusSetter',
-                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                statusResultSource: [$class: 'DefaultStatusResultSource']
-            ])
-        }
     }
 }
