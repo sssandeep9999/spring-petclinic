@@ -13,18 +13,20 @@ pipeline {
     }
 
     environment {
-        SONAR_URL = "http://172.17.0.1:9000"
+        SONAR_URL   = "http://172.17.0.1:9000"
         SONAR_TOKEN = credentials('sonar-token')
 
+        // Optional: used by Maven settings.xml for Nexus deployment
         NEXUS_CREDS = credentials('nexus-creds')
 
-        IMAGE_NAME = "petclinic-app"
-        IMAGE_TAG = "${BUILD_NUMBER}"
-        DOCKERHUB_USER = "satyasandeep901"
+        IMAGE_NAME      = "petclinic-app"
+        IMAGE_TAG       = "${BUILD_NUMBER}"
+        DOCKERHUB_USER  = "satyasandeep901"
 
-        POSTGRES_URL = "jdbc:postgresql://postgres:5432/petclinic"
+        POSTGRES_URL  = "jdbc:postgresql://postgres:5432/petclinic"
         POSTGRES_USER = "petclinic"
         POSTGRES_PASS = "petclinic"
+
         SPRING_DOCKER_COMPOSE_ENABLED = "false"
     }
 
@@ -46,13 +48,14 @@ pipeline {
         /*
         ==================================================
         FEATURE BRANCH CI (FAST VALIDATION)
+        Runs only for: feature/*
         ==================================================
         */
 
         stage('Feature Build') {
             when {
                 expression {
-                    env.BRANCH_NAME.startsWith("feature/")
+                    env.BRANCH_NAME.startsWith('feature/')
                 }
             }
             steps {
@@ -63,7 +66,7 @@ pipeline {
         stage('Feature Unit Test') {
             when {
                 expression {
-                    env.BRANCH_NAME.startsWith("feature/")
+                    env.BRANCH_NAME.startsWith('feature/')
                 }
             }
             steps {
@@ -73,13 +76,19 @@ pipeline {
 
         /*
         ==================================================
-        DEVELOP BRANCH FULL CI
+        FULL CI VALIDATION
+        Runs for:
+          - Pull Request builds (PR-*)
+          - develop branch
         ==================================================
         */
 
         stage('Develop Build Package') {
             when {
-                branch 'develop'
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
             }
             steps {
                 sh 'mvn clean package -DskipTests'
@@ -88,7 +97,10 @@ pipeline {
 
         stage('Develop Test') {
             when {
-                branch 'develop'
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
             }
             steps {
                 sh 'mvn test'
@@ -97,15 +109,18 @@ pipeline {
 
         stage('SonarQube Analysis') {
             when {
-                branch 'develop'
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
-                    mvn sonar:sonar \
-                    -Dsonar.projectKey=petclinic-app \
-                    -Dsonar.host.url=$SONAR_URL \
-                    -Dsonar.login=$SONAR_TOKEN
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=petclinic-app \
+                          -Dsonar.host.url=$SONAR_URL \
+                          -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
@@ -113,7 +128,10 @@ pipeline {
 
         stage('Quality Gate') {
             when {
-                branch 'develop'
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
             }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -124,18 +142,31 @@ pipeline {
 
         /*
         ==================================================
-        ARTIFACT PUBLISH
+        ARCHIVE ARTIFACT
+        Runs for:
+          - Pull Request builds
+          - develop branch
         ==================================================
         */
 
         stage('Archive Artifact') {
             when {
-                branch 'develop'
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
             }
             steps {
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
+
+        /*
+        ==================================================
+        PUBLISH ARTIFACT TO NEXUS
+        Runs only for: develop
+        ==================================================
+        */
 
         stage('Publish Artifact to Nexus') {
             when {
@@ -153,7 +184,8 @@ pipeline {
 
         /*
         ==================================================
-        DOCKER BUILD + PUSH
+        DOCKER BUILD
+        Runs only for: develop
         ==================================================
         */
 
@@ -163,26 +195,34 @@ pipeline {
             }
             steps {
                 sh """
-                docker build -t $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG .
+                    docker build \
+                      -t $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG .
                 """
             }
         }
+
+        /*
+        ==================================================
+        DOCKER PUSH
+        Runs only for: develop
+        ==================================================
+        */
 
         stage('Docker Push') {
             when {
                 branch 'develop'
             }
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'docker',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'docker',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
                     sh """
-                    echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-
-                    docker push $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG
+                        echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                        docker push $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG
                     """
                 }
             }
@@ -190,20 +230,12 @@ pipeline {
     }
 
     post {
-
         success {
             echo "CI Pipeline Success - ${env.BRANCH_NAME}"
         }
 
         failure {
             echo "CI Pipeline Failed - ${env.BRANCH_NAME}"
-        }
-
-        always {
-            step([$class: 'GitHubCommitStatusSetter',
-                contextSource: [$class: 'ManuallyEnteredCommitContextSource', context: 'ci/jenkins-build'],
-                statusResultSource: [$class: 'DefaultStatusResultSource']
-            ])
         }
     }
 }
