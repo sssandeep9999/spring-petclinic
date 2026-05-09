@@ -185,6 +185,7 @@ pipeline {
                         globalMavenSettingsConfig: 'maven-settings'
                     ) {
                         sh 'mvn deploy -DskipTests -Dmaven.install.skip=true'
+                   }
                 }
             }
         }
