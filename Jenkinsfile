@@ -173,11 +173,19 @@ pipeline {
                 branch 'develop'
             }
             steps {
-                withMaven(
-                    maven: 'maven3',
-                    globalMavenSettingsConfig: 'maven-settings'
-                ) {
-                    sh 'mvn deploy -DskipTests -Dmaven.install.skip=true'
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'nexus-creds',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )
+                ]) {
+                    withMaven(
+                        maven: 'maven3',
+                        globalMavenSettingsConfig: 'maven-settings'
+                    ) {
+                        sh 'mvn deploy -DskipTests -Dmaven.install.skip=true'
+                   }
                 }
             }
         }
