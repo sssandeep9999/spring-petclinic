@@ -235,6 +235,21 @@ pipeline {
                 }
             }
         }
+        stage('Trigger DEV CD Pipeline') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                build job: 'petclinic-dev-cd',
+                      parameters: [
+                          string(
+                              name: 'IMAGE_TAG',
+                              value: env.BUILD_NUMBER
+                          )
+                      ],
+                      wait: true
+            }
+        }
     }
 
     post {
