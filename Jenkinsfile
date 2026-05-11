@@ -250,6 +250,21 @@ pipeline {
                       wait: true
             }
         }
+        stage('Trigger QA CD Pipeline') {
+            when {
+                branch 'qa'
+            }
+            steps {
+                build job: 'petclinic-qa-cd',
+                      parameters: [
+                          string(
+                              name: 'IMAGE_TAG',
+                              value: env.BUILD_NUMBER
+                          )
+                      ],
+                      wait: true
+            }
+        }
     }
 
     post {
