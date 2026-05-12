@@ -242,9 +242,15 @@ pipeline {
             }
             steps {
                 script {
-                    writeFile file: 'image-tag.txt', text: env.IMAGE_TAG
-                    echo "Saved promoted image tag: ${env.IMAGE_TAG}"
+                    // Save the Docker image tag produced in develop CI
+                    writeFile file: 'image-tag.txt', text: "${env.IMAGE_TAG}\n"
+                    
+                    // Verify saved value
+                    def savedTag = readFile('image-tag.txt').trim()
+                    echo "Saved promoted image tag: ${savedTag}"
                 }
+
+                // Archive the file so qa branch can copy it later
                 archiveArtifacts artifacts: 'image-tag.txt', fingerprint: true
             }
         }
@@ -271,11 +277,19 @@ pipeline {
                 branch 'qa'
             }
             steps {
+                // Copy image-tag.txt from the last successful develop build
+                copyArtifacts(
+                    projectName: 'Multibranch-Pipleine/develop',
+                    selector: lastSuccessful(),
+                    filter: 'image-tag.txt'
+                )
                 script {
+                    // Read the promoted image tag
                     def promotedTag = readFile('image-tag.txt').trim()
 
                     echo "Promoting Docker image tag ${promotedTag} to QA"
 
+                    // Trigger QA CD with the same tag built in develop
                     build job: 'petclinic-qa-cd',
                           parameters: [
                               string(
@@ -288,7 +302,6 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {
