@@ -235,6 +235,21 @@ pipeline {
                 }
             }
         }
+
+        stage('Save Image Tag for Promotion') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                script {
+                    writeFile file: 'image-tag.txt', text: env.IMAGE_TAG
+                    echo "Saved promoted image tag: ${env.IMAGE_TAG}"
+                }
+                archiveArtifacts artifacts: 'image-tag.txt', fingerprint: true
+            }
+        }
+
+
         stage('Trigger DEV CD Pipeline') {
             when {
                 branch 'develop'
@@ -250,21 +265,30 @@ pipeline {
                       wait: true
             }
         }
+        
         stage('Trigger QA CD Pipeline') {
             when {
                 branch 'qa'
             }
             steps {
-                build job: 'petclinic-qa-cd',
-                      parameters: [
-                          string(
-                              name: 'IMAGE_TAG',
-                              value: env.BUILD_NUMBER
-                          )
-                      ],
-                      wait: true
+                script {
+                    def promotedTag = readFile('image-tag.txt').trim()
+
+                    echo "Promoting Docker image tag ${promotedTag} to QA"
+
+                    build job: 'petclinic-qa-cd',
+                          parameters: [
+                              string(
+                                  name: 'IMAGE_TAG',
+                                  value: promotedTag
+                              )
+                          ],
+                          wait: true,
+                          propagate: true
+                }
             }
         }
+
     }
 
     post {
