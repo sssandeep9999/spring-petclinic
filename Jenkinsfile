@@ -273,6 +273,9 @@ pipeline {
         }
         
         stage('Promote to QA') {
+	    when {
+		branch 'qa'
+	    }
             steps {
                 script {
                     // Trigger the QA branch inside the Multibranch Pipeline
