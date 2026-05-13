@@ -273,7 +273,10 @@ pipeline {
         }
         
         stage('Promote to QA') {
-            steps {
+            when {
+		branch 'qa'
+            }
+	    steps {
                 script {
                     // Trigger the QA branch inside the Multibranch Pipeline
                     def ciBuild = build(
