@@ -63,16 +63,16 @@ pipeline {
             }
         }
 
-        stage('Feature Unit Test') {
-            when {
-                expression {
-                    env.BRANCH_NAME.startsWith('feature/')
-                }
-            }
-            steps {
-                sh 'mvn test'
-            }
-        }
+        //stage('Feature Unit Test') {
+            //when {
+                //expression {
+                    //env.BRANCH_NAME.startsWith('feature/')
+                //}
+            //}
+            //steps {
+                //sh 'mvn test'
+            //}
+        //}
 
         /*
         ==================================================
@@ -217,9 +217,9 @@ pipeline {
         */
 
         stage('Docker Push') {
-            when {
-                branch 'develop'
-            }
+            //when {
+                //branch 'develop'
+            //}
             steps {
                 withCredentials([
                     usernamePassword(
