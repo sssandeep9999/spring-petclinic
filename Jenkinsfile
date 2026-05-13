@@ -273,39 +273,35 @@ pipeline {
         }
         
         stage('Trigger QA CD Pipeline') {
-            when {
-                branch 'qa'
-            }
-            steps {
-                // Copy image-tag.txt from the last successful develop build
-                copyArtifacts(
-<<<<<<< HEAD
-                    projectName: 'Multibranch-Pipeline/develop',
-                    selector: lastSuccessfulBuild(),
-=======
-                    projectName: 'Multibranch-Pipleine/develop',
-                    selector: lastSuccessful(),
->>>>>>> origin/qa
-                    filter: 'image-tag.txt'
-                )
-                script {
-                    // Read the promoted image tag
-                    def promotedTag = readFile('image-tag.txt').trim()
+           when {
+               branch 'qa'
+           }
+           steps {
+               // Copy image-tag.txt from the latest successful develop build
+               copyArtifacts(
+                   projectName: 'Multibranch-Pipleine/develop',
+                   selector: lastSuccessfulBuild(),
+                   filter: 'image-tag.txt'
+               )
 
-                    echo "Promoting Docker image tag ${promotedTag} to QA"
+               script {
+                   // Read Docker image tag created in develop pipeline
+                   def promotedTag = readFile('image-tag.txt').trim()
 
-                    // Trigger QA CD with the same tag built in develop
-                    build job: 'petclinic-qa-cd',
-                          parameters: [
-                              string(
-                                  name: 'IMAGE_TAG',
-                                  value: promotedTag
-                              )
-                          ],
-                          wait: true,
-                          propagate: true
-                }
-            }
+                   echo "Promoting Docker image tag ${promotedTag} to QA"
+
+                   // Trigger QA CD pipeline with the same Docker tag
+                   build job: 'petclinic-qa-cd',
+                         parameters: [
+                             string(
+                                 name: 'IMAGE_TAG',
+                                 value: promotedTag
+                             )
+                         ],
+                         wait: true,
+                         propagate: true
+               }
+           }
         }
     }
 
