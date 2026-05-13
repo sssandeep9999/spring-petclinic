@@ -257,9 +257,9 @@ pipeline {
 
 
         stage('Trigger DEV CD Pipeline') {
-            when {
-                branch 'develop'
-            }
+            #when {
+            #    branch 'develop'
+            #}
             steps {
                 build job: 'petclinic-dev-cd',
                       parameters: [
@@ -271,31 +271,16 @@ pipeline {
                       wait: true
             }
         }
+
         stage('Trigger QA CD Pipeline') {
-            when {
-                branch 'qa'
-            }
+            #when {
+               # branch 'develop'
+            #}
             steps {
-                // Copy image-tag.txt from the latest successful develop build
-                copyArtifacts(
-                    projectName: 'Multibranch-Pipleine/develop',
-                    selector: lastSuccessfulBuild(),
-                    filter: 'image-tag.txt'
-                )
-
                 script {
-                    // Read Docker image tag created in develop pipeline
-                    def promotedTag = readFile('image-tag.txt').trim()
-
-                    echo "Promoting Docker image tag ${promotedTag} to QA"
-
-                    // Trigger QA CD pipeline with the same Docker tag
                     build job: 'petclinic-qa-cd',
                           parameters: [
-                              string(
-                                  name: 'IMAGE_TAG',
-                                  value: promotedTag
-                              )
+                              string(name: 'IMAGE_TAG', value: env.IMAGE_TAG)
                           ],
                           wait: true,
                           propagate: true
