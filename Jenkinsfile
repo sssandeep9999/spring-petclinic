@@ -279,8 +279,8 @@ pipeline {
             steps {
                 // Copy image-tag.txt from the last successful develop build
                 copyArtifacts(
-                    projectName: 'Multibranch-Pipleine/develop',
-                    selector: lastSuccessful(),
+                    projectName: 'Multibranch-Pipeline/develop',
+                    selector: lastSuccessfulBuild(),
                     filter: 'image-tag.txt'
                 )
                 script {
