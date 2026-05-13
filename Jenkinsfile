@@ -273,16 +273,7 @@ pipeline {
         }
         
         stage('Promote to QA') {
-	    when {
-		branch 'qa'
-	    }
             steps {
-                // Copy image-tag.txt from the last successful develop build
-                copyArtifacts(
-                    projectName: 'Multibranch-Pipeline/develop',
-                    selector: lastSuccessfulBuild(),
-                    filter: 'image-tag.txt'
-                )
                 script {
                     // Trigger the QA branch inside the Multibranch Pipeline
                     def ciBuild = build(
