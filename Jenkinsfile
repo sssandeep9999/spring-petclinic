@@ -280,7 +280,13 @@ pipeline {
                 script {
                     build job: 'petclinic-qa-cd',
                           parameters: [
-                              string(name: 'IMAGE_TAG', value: env.IMAGE_TAG)
+                              string(
+                                   name: 'IMAGE_TAG',
+                                   value: sh(
+                                       script: "git log origin/qa..origin/develop --reverse --format=%s | grep -oE '[0-9]+' | tail -1",
+                                       returnStdout: true
+                                   ).trim()
+                              )
                           ],
                           wait: true,
                           propagate: true
