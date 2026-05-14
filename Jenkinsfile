@@ -63,16 +63,16 @@ pipeline {
             }
         }
 
-        //stage('Feature Unit Test') {
-            //when {
-                //expression {
-                    //env.BRANCH_NAME.startsWith('feature/')
-                //}
-            //}
-            //steps {
-                //sh 'mvn test'
-            //}
-        //}
+        stage('Feature Unit Test') {
+            when {
+                expression {
+                    env.BRANCH_NAME.startsWith('feature/')
+                }
+            }
+            steps {
+                sh 'mvn test'
+            }
+        }
 
         /*
         ==================================================
@@ -84,12 +84,12 @@ pipeline {
         */
 
         stage('Develop Build Package') {
-            //when {
-              //  expression {
-                //    env.BRANCH_NAME == 'develop' ||
-                  //  env.BRANCH_NAME.startsWith('PR-')
-                //}
-            //}
+            when {
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
+            }
             steps {
                 sh 'mvn clean package -DskipTests'
             }
@@ -198,9 +198,9 @@ pipeline {
         */
 
         stage('Docker Build') {
-            //when {
-              //  branch 'develop'
-            //}
+            when {
+                branch 'develop'
+            }
             steps {
                 sh """
                     docker build \
@@ -217,9 +217,9 @@ pipeline {
         */
 
         stage('Docker Push') {
-            //when {
-                //branch 'develop'
-            //}
+            when {
+                branch 'develop'
+            }
             steps {
                 withCredentials([
                     usernamePassword(
@@ -257,9 +257,9 @@ pipeline {
 
 
         stage('Trigger DEV CD Pipeline') {
-            //when {
-            //    branch 'develop'
-            //}
+            when {
+                branch 'develop'
+            }
             steps {
                 build job: 'petclinic-dev-cd',
                       parameters: [
@@ -273,9 +273,9 @@ pipeline {
         }
 
         stage('Trigger QA CD Pipeline') {
-            //when {
-               // branch 'develop'
-            //}
+            when {
+                branch 'develop'
+            }
             steps {
                 script {
                     build job: 'petclinic-qa-cd',
