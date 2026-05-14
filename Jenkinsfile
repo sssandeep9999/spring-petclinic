@@ -277,27 +277,27 @@ pipeline {
                 branch 'qa'
             }
             steps {
-                script {
-                    // Read the develop build number from the merge commit message
-                    // Example: "Merge pull request #46 from sssandeep9999/develop"
-                    // The actual image tag is the develop CI build number, stored in a file in Git.
+                 // Copy image-tag.txt from develop branch build
+                 copyArtifacts(
+                     projectName: 'Multibranch-Pipleine/develop',
+                     selector: lastSuccessfulBuild(),
+                     filter: 'image-tag.txt'
+                 )
 
-                    def promotedTag = sh(
-                        script: "cat image-tag.txt",
-                        returnStdout: true
-                    ).trim()
+                 script {
+                     def promotedTag = readFile('image-tag.txt').trim()
 
-                    echo "Promoting Docker image tag ${promotedTag} to QA"
+                     echo "Promoting Docker image tag ${promotedTag} to QA"
 
-                    build job: 'petclinic-qa-cd',
-                          parameters: [
-                              string(name: 'IMAGE_TAG', value: promotedTag)
-                          ],
-                          wait: true,
-                          propagate: true
-                }
+                     build job: 'petclinic-qa-cd',
+                           parameters: [
+                               string(name: 'IMAGE_TAG', value: promotedTag)
+                           ],
+                           wait: true,
+                           propagate: true
+                 }
             }
-        }
+        } 
         
     }
 
