@@ -280,7 +280,7 @@ pipeline {
                  // Copy image-tag.txt from develop branch build
                  copyArtifacts(
                      projectName: 'Multibranch-Pipleine/develop',
-                     selector: lastSuccessfulBuild(),
+                     selector: lastSuccessful(),
                      filter: 'image-tag.txt'
                  )
 
@@ -300,6 +300,8 @@ pipeline {
         } 
         
     }
+
+
 
     post {
         success {
