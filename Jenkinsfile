@@ -278,15 +278,20 @@ pipeline {
             }
             steps {
                 script {
+                    // Read the develop build number from the merge commit message
+                    // Example: "Merge pull request #46 from sssandeep9999/develop"
+                    // The actual image tag is the develop CI build number, stored in a file in Git.
+
+                    def promotedTag = sh(
+                        script: "cat image-tag.txt",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Promoting Docker image tag ${promotedTag} to QA"
+
                     build job: 'petclinic-qa-cd',
                           parameters: [
-                              string(
-                                   name: 'IMAGE_TAG',
-                                   value: sh(
-                                       script: "git log origin/qa..origin/develop --reverse --format=%s | grep -oE '[0-9]+' | tail -1",
-                                       returnStdout: true
-                                   ).trim()
-                              )
+                              string(name: 'IMAGE_TAG', value: promotedTag)
                           ],
                           wait: true,
                           propagate: true
