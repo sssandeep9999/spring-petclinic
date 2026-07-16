@@ -203,7 +203,7 @@ pipeline {
             steps {
                  // Copy image-tag.txt from develop branch build
                  copyArtifacts(
-                     projectName: 'Multibranch-Pipeline/develop',
+                     projectName: 'Multibranch-Pipleine/develop',
                      selector: lastSuccessful(),
                      filter: 'image-tag.txt'
                  )
@@ -232,7 +232,7 @@ pipeline {
                  
                  // 2. Deployment execution via distinct production runner
                  copyArtifacts(
-                     projectName: 'Multibranch-Pipeline/develop',
+                     projectName: 'Multibranch-Pipleine/develop',
                      selector: lastSuccessful(),
                      filter: 'image-tag.txt'
                  )
