@@ -1,0 +1,183 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        // Application details
+        IMAGE_NAME      = 'petclinic-app'
+        DOCKERHUB_USER  = 'satyasandeep901'
+        DEPLOYMENT      = 'petclinic-deployment'
+        CONTAINER_NAME  = 'petclinic-container'
+        KUBE_NAMESPACE  = 'prod'
+
+        // Credentials IDs
+        DOCKER_CREDS = 'docker'
+
+        /*
+         * IMAGE_TAG is passed from the CI pipeline.
+         * Example:
+         * build job: 'petclinic-cd',
+         * parameters: [string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER)]
+         */
+    }
+
+    parameters {
+        string(
+            name: 'IMAGE_TAG',
+            defaultValue: '',
+            description: 'Docker image tag produced by the CI pipeline'
+        )
+    }
+
+    stages {
+
+        stage('Validate Input') {
+            steps {
+                script {
+                    if (!params.IMAGE_TAG?.trim()) {
+                        error("IMAGE_TAG parameter is required")
+                    }
+                }
+                echo "Deploying image: ${DOCKERHUB_USER}/${IMAGE_NAME}:${params.IMAGE_TAG}"
+            }
+        }
+
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        /*
+        ==================================================
+        OPTIONAL IMAGE VERIFICATION
+        Pull the image to ensure it exists in Docker Hub.
+        ==================================================
+        */
+        stage('Verify Docker Image') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: DOCKER_CREDS,
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker pull $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG
+                    '''
+                }
+            }
+        }
+
+        /*
+        ==================================================
+        OPTIONAL SECURITY VALIDATION
+        Re-scan the built image before deployment.
+        ==================================================
+        */
+        stage('Trivy Scan') {
+            steps {
+                sh '''
+                    trivy image \
+                      --severity HIGH,CRITICAL \
+                      --exit-code 1 \
+                      --no-progress \
+                      $DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG
+                '''
+            }
+        }
+
+        /*
+        ==================================================
+        DEPLOY TO DEV KUBERNETES NAMESPACE
+        ==================================================
+        */
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    kubectl set image deployment/$DEPLOYMENT \
+                      $CONTAINER_NAME=$DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG \
+                      -n $KUBE_NAMESPACE
+                '''
+            }
+        }
+
+        /*
+        ==================================================
+        VERIFY ROLLOUT
+        ==================================================
+        */
+        stage('Verify Rollout') {
+            steps {
+                sh '''
+                    kubectl rollout status deployment/$DEPLOYMENT \
+                      -n $KUBE_NAMESPACE \
+                      --timeout=5m
+                '''
+            }
+        }
+
+        /*
+        ==================================================
+        APPLICATION HEALTH CHECK
+        Assumes service is exposed via NodePort or Ingress.
+        Update URL if needed.
+        ==================================================
+        */
+        stage('Application Health Check') {
+            steps {
+                sh '''
+                    curl -fsS http://172.18.0.2:31028/actuator/health \
+                    | grep '"status":"UP"'
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment to DEV succeeded."
+
+            mail to: 'satyasaisandeep9@gmail.com',
+                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: """
+Deployment to DEV was successful.
+
+Image:
+${DOCKERHUB_USER}/${IMAGE_NAME}:${params.IMAGE_TAG}
+
+Namespace:
+${KUBE_NAMESPACE}
+"""
+        }
+
+        failure {
+            echo "Deployment failed. Rolling back..."
+
+            sh '''
+                kubectl rollout undo deployment/$DEPLOYMENT \
+                  -n $KUBE_NAMESPACE || true
+            '''
+
+            mail to: 'satyasaisandeep9@gmail.com',
+                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: """
+Deployment to DEV failed and rollback was attempted.
+
+Image:
+${DOCKERHUB_USER}/${IMAGE_NAME}:${params.IMAGE_TAG}
+
+Namespace:
+${KUBE_NAMESPACE}
+"""
+        }
+    }
+}
