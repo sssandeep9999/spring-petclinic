@@ -70,7 +70,7 @@ pipeline {
             steps {
                 // Dynamically direct your check based on the environment rules or routing setup
                 echo "Running health checks for ${KUBE_NAMESPACE}..."
-                sh 'curl -s http://172.18.0.2:31028/actuator/health | grep UP || exit 1'
+                sh 'curl -s http://172.18.0.3:31028/actuator/health | grep UP || exit 1'
             }
         }
     }
