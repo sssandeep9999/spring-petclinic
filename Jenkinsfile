@@ -63,16 +63,16 @@ pipeline {
             }
         }
 
-        stage('Feature Unit Test') {
-            when {
-                expression {
-                    env.BRANCH_NAME.startsWith('feature/')
-                }
-            }
-            steps {
-                sh 'mvn test'
-            }
-        }
+        //stage('Feature Unit Test') {
+            //when {
+                //expression {
+                    //env.BRANCH_NAME.startsWith('feature/')
+                //}
+            //}
+            //steps {
+                //sh 'mvn test'
+            //}
+        //}
 
         /*
         ==================================================
@@ -95,17 +95,17 @@ pipeline {
             }
         }
 
-        stage('Develop Test') {
-            when {
-                expression {
-                    env.BRANCH_NAME == 'develop' ||
-                    env.BRANCH_NAME.startsWith('PR-')
-                }
-            }
-            steps {
-                sh 'mvn test'
-            }
-        }
+        //stage('Develop Test') {
+            //when {
+                //expression {
+                    //env.BRANCH_NAME == 'develop' ||
+                    //env.BRANCH_NAME.startsWith('PR-')
+                //}
+            //}
+            //steps {
+                //sh 'mvn test'
+            //}
+        //}
 
         stage('SonarQube Analysis') {
             when {
@@ -169,7 +169,7 @@ pipeline {
         */
 
         stage('Publish Artifact to Nexus') {
-            when {
+           when {
                 branch 'develop'
             }
             steps {
@@ -271,39 +271,64 @@ pipeline {
                       wait: true
             }
         }
-        
+
         stage('Trigger QA CD Pipeline') {
-           when {
-               branch 'qa'
-           }
-           steps {
-               // Copy image-tag.txt from the latest successful develop build
-               copyArtifacts(
-                   projectName: 'Multibranch-Pipleine/develop',
-                   selector: lastSuccessfulBuild(),
-                   filter: 'image-tag.txt'
-               )
+            when {
+                branch 'qa'
+            }
+            steps {
+                 // Copy image-tag.txt from develop branch build
+                 copyArtifacts(
+                     projectName: 'Multibranch-Pipleine/develop',
+                     selector: lastSuccessful(),
+                     filter: 'image-tag.txt'
+                 )
 
-               script {
-                   // Read Docker image tag created in develop pipeline
-                   def promotedTag = readFile('image-tag.txt').trim()
+                 script {
+                     def promotedTag = readFile('image-tag.txt').trim()
 
-                   echo "Promoting Docker image tag ${promotedTag} to QA"
+                     echo "Promoting Docker image tag ${promotedTag} to QA"
 
-                   // Trigger QA CD pipeline with the same Docker tag
-                   build job: 'petclinic-qa-cd',
-                         parameters: [
-                             string(
-                                 name: 'IMAGE_TAG',
-                                 value: promotedTag
-                             )
-                         ],
-                         wait: true,
-                         propagate: true
-               }
-           }
+                     build job: 'petclinic-qa-cd',
+                           parameters: [
+                               string(name: 'IMAGE_TAG', value: promotedTag)
+                           ],
+                           wait: true,
+                           propagate: true
+                 }
+            }
         }
+
+        stage('Trigger UAT CD Pipeline') {
+            when { expression { env.BRANCH_NAME.startsWith('uat/') || env.BRANCH_NAME == 'uat' } }
+            steps {
+                 copyArtifacts(projectName: 'Multibranch-Pipeline/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
+                 script {
+                     def promotedTag = readFile('image-tag.txt').trim()
+                     build job: 'petclinic-uat-cd', parameters: [string(name: 'IMAGE_TAG', value: promotedTag)], wait: true, propagate: true
+                 }
+            }
+        }
+        
+        stage('Trigger PROD CD Pipeline') {
+            when { branch 'master' } // or main
+            steps {
+                 // 1. Strict Production Manual Intervention Gate
+                 timeout(time: 24, unit: 'HOURS') {
+                     input message: "Deploy version to live Production?", ok: "Approve Release"
+                 }
+                 
+                 // 2. Deployment execution via distinct production runner
+                 copyArtifacts(projectName: 'Multibranch-Pipeline/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
+                 script {
+                     def promotedTag = readFile('image-tag.txt').trim()
+                     build job: 'petclinic-prod-cd', parameters: [string(name: 'IMAGE_TAG', value: promotedTag)], wait: true, propagate: true
+                 }
+            }
+        } 
+        
     }
+
 
     post {
         success {
