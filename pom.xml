@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.4</version>
+    <version>4.0.6</version>
   </parent>
 
   <groupId>org.springframework.samples</groupId>
@@ -35,9 +35,22 @@
     <maven-checkstyle.version>3.6.0</maven-checkstyle.version>
     <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
     <spring-format.version>0.0.47</spring-format.version>
-    <tomcat.version>11.0.21</tomcat.version>
-    <thymeleaf.version>3.1.4.RELEASE</thymeleaf.version>
+    <tomcat.version>11.0.22</tomcat.version>
+    <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
+    <jackson.version>3.1.4</jackson.version>
   </properties>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>tools.jackson</groupId>
+            <artifactId>jackson-bom</artifactId>
+            <version>3.1.4</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 
   <dependencies>
     <!-- Spring and Spring Boot dependencies -->
@@ -93,6 +106,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
+      <version>42.7.11</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
