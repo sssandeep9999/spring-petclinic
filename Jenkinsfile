@@ -197,18 +197,33 @@ pipeline {
         }
 
         stage('Trigger UAT CD Pipeline') {
-            when { expression { env.BRANCH_NAME.startsWith('uat/') || env.BRANCH_NAME == 'uat' } }
+            when {
+                branch 'uat'
+            }
             steps {
-                 copyArtifacts(projectName: 'Multibranch-Pipeline/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
+                 // Copy image-tag.txt from develop branch build
+                 copyArtifacts(
+                     projectName: 'Multibranch-Pipeline/develop',
+                     selector: lastSuccessful(),
+                     filter: 'image-tag.txt'
+                 )
+                 
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
-                     build job: 'petclinic-uat-cd', parameters: [string(name: 'IMAGE_TAG', value: promotedTag)], wait: true, propagate: true
+                     build job: 'petclinic-uat-cd',
+                           parameters: [
+                               string(name: 'IMAGE_TAG', value: promotedTag)
+                           ],
+                           wait: true,
+                           propagate: true
                  }
             }
         }
         
         stage('Trigger PROD CD Pipeline') {
-            when { branch 'master' } // or main
+            when {
+                branch 'master'
+            }
             steps {
                  // 1. Strict Production Manual Intervention Gate
                  timeout(time: 24, unit: 'HOURS') {
@@ -216,10 +231,19 @@ pipeline {
                  }
                  
                  // 2. Deployment execution via distinct production runner
-                 copyArtifacts(projectName: 'Multibranch-Pipeline/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
+                 copyArtifacts(
+                     projectName: 'Multibranch-Pipeline/develop',
+                     selector: lastSuccessful(),
+                     filter: 'image-tag.txt'
+                 )
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
-                     build job: 'petclinic-prod-cd', parameters: [string(name: 'IMAGE_TAG', value: promotedTag)], wait: true, propagate: true
+                     build job: 'petclinic-prod-cd',
+                           parameters: [
+                               string(name: 'IMAGE_TAG', value: promotedTag)
+                           ],
+                           wait: true,
+                           propagate: true
                  }
             }
         } 
