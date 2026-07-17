@@ -7,6 +7,11 @@ pipeline {
         jdk 'jdk17'
     }
 
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timestamps()
+    }
+
     environment {
         SONAR_URL   = "http://172.17.0.1:9000"
         SONAR_TOKEN = credentials('sonar-token')
@@ -40,13 +45,75 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        /*
+        ==================================================
+        FEATURE BRANCH CI (FAST VALIDATION)
+        Runs only for: feature/*
+        ==================================================
+        */
+
+        stage('Feature Build') {
+            when {
+                expression {
+                    env.BRANCH_NAME.startsWith('feature/')
+                }
+            }
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        //stage('Feature Unit Test') {
+            //when {
+                //expression {
+                    //env.BRANCH_NAME.startsWith('feature/')
+                //}
+            //}
+            //steps {
+                //sh 'mvn test'
+            //}
+        //}
+
+        /*
+        ==================================================
+        FULL CI VALIDATION
+        Runs for:
+          - Pull Request builds (PR-*)
+          - develop branch
+        ==================================================
+        */
+
+        stage('Develop Build Package') {
+            when {
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
+            }
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
 
+        //stage('Develop Test') {
+            //when {
+                //expression {
+                    //env.BRANCH_NAME == 'develop' ||
+                    //env.BRANCH_NAME.startsWith('PR-')
+                //}
+            //}
+            //steps {
+                //sh 'mvn test'
+            //}
+        //}
+
         stage('SonarQube Analysis') {
+            when {
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
+            }
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
@@ -73,16 +140,52 @@ pipeline {
             }
         }
 
-        stage('Publish Artifact') {
+        /*
+        ==================================================
+        ARCHIVE ARTIFACT
+        Runs for:
+          - Pull Request builds
+          - develop branch
+        ==================================================
+        */
+
+        stage('Archive Artifact') {
+            when {
+                expression {
+                    env.BRANCH_NAME == 'develop' ||
+                    env.BRANCH_NAME.startsWith('PR-')
+                }
+            }
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'nexus-creds',
-                    usernameVariable: 'NEXUS_USER',
-                    passwordVariable: 'NEXUS_PASS'
-                )]) {
-                    withMaven(globalMavenSettingsConfig: 'maven-settings', maven: 'maven3') {
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            }
+        }
+
+        /*
+        ==================================================
+        PUBLISH ARTIFACT TO NEXUS
+        Runs only for: develop
+        ==================================================
+        */
+
+        stage('Publish Artifact to Nexus') {
+           when {
+                branch 'develop'
+            }
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'nexus-creds',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )
+                ]) {
+                    withMaven(
+                        maven: 'maven3',
+                        globalMavenSettingsConfig: 'maven-settings'
+                    ) {
                         sh 'mvn deploy -DskipTests -Dmaven.install.skip=true'
-                    }
+                   }
                 }
             }
         }
@@ -197,33 +300,18 @@ pipeline {
         }
 
         stage('Trigger UAT CD Pipeline') {
-            when {
-                branch 'uat'
-            }
+            when { expression { env.BRANCH_NAME.startsWith('uat/') || env.BRANCH_NAME == 'uat' } }
             steps {
-                 // Copy image-tag.txt from develop branch build
-                 copyArtifacts(
-                     projectName: 'Multibranch-Pipleine/develop',
-                     selector: lastSuccessful(),
-                     filter: 'image-tag.txt'
-                 )
-                 
+                 copyArtifacts(projectName: 'Multibranch-Pipeline/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
-                     build job: 'petclinic-uat-cd',
-                           parameters: [
-                               string(name: 'IMAGE_TAG', value: promotedTag)
-                           ],
-                           wait: true,
-                           propagate: true
+                     build job: 'petclinic-uat-cd', parameters: [string(name: 'IMAGE_TAG', value: promotedTag)], wait: true, propagate: true
                  }
             }
         }
         
         stage('Trigger PROD CD Pipeline') {
-            when {
-                branch 'master'
-            }
+            when { branch 'master' } // or main
             steps {
                  // 1. Strict Production Manual Intervention Gate
                  timeout(time: 24, unit: 'HOURS') {
@@ -231,19 +319,10 @@ pipeline {
                  }
                  
                  // 2. Deployment execution via distinct production runner
-                 copyArtifacts(
-                     projectName: 'Multibranch-Pipleine/develop',
-                     selector: lastSuccessful(),
-                     filter: 'image-tag.txt'
-                 )
+                 copyArtifacts(projectName: 'Multibranch-Pipeline/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
-                     build job: 'petclinic-prod-cd',
-                           parameters: [
-                               string(name: 'IMAGE_TAG', value: promotedTag)
-                           ],
-                           wait: true,
-                           propagate: true
+                     build job: 'petclinic-prod-cd', parameters: [string(name: 'IMAGE_TAG', value: promotedTag)], wait: true, propagate: true
                  }
             }
         } 
