@@ -304,7 +304,7 @@ pipeline {
                 branch 'uat'
             }
             steps {
-<<<<<<< HEAD
+
                  // Copy image-tag.txt from develop branch build
                  copyArtifacts(
                      projectName: 'Multibranch-Pipleine/develop',
@@ -312,9 +312,8 @@ pipeline {
                      filter: 'image-tag.txt'
                  )
                  
-=======
+
                  copyArtifacts(projectName: 'Multibranch-Pipleine/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
->>>>>>> 7f457b6 (resolved jenkins ci pipeline syntax issue in last 2 stages)
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
                      build job: 'petclinic-uat-cd',
@@ -338,15 +337,14 @@ pipeline {
                  }
                  
                  // 2. Deployment execution via distinct production runner
-<<<<<<< HEAD
+
                  copyArtifacts(
                      projectName: 'Multibranch-Pipleine/develop',
                      selector: lastSuccessful(),
                      filter: 'image-tag.txt'
                  )
-=======
+
                  copyArtifacts(projectName: 'Multibranch-Pipleine/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
->>>>>>> 7f457b6 (resolved jenkins ci pipeline syntax issue in last 2 stages)
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
                      build job: 'petclinic-prod-cd',
