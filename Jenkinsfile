@@ -300,19 +300,8 @@ pipeline {
         }
 
         stage('Trigger UAT CD Pipeline') {
-            when {
-                branch 'uat'
-            }
+            when { expression { env.BRANCH_NAME.startsWith('uat/') || env.BRANCH_NAME == 'uat' } }
             steps {
-
-                 // Copy image-tag.txt from develop branch build
-                 copyArtifacts(
-                     projectName: 'Multibranch-Pipleine/develop',
-                     selector: lastSuccessful(),
-                     filter: 'image-tag.txt'
-                 )
-                 
-
                  copyArtifacts(projectName: 'Multibranch-Pipleine/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
@@ -328,9 +317,7 @@ pipeline {
         }
         
         stage('Trigger PROD CD Pipeline') {
-            when {
-                branch 'master'
-            }
+            when { branch 'master' } // or main
             steps {
                  // 1. Strict Production Manual Intervention Gate
                  timeout(time: 24, unit: 'HOURS') {
@@ -338,13 +325,6 @@ pipeline {
                  }
                  
                  // 2. Deployment execution via distinct production runner
-
-                 copyArtifacts(
-                     projectName: 'Multibranch-Pipleine/develop',
-                     selector: lastSuccessful(),
-                     filter: 'image-tag.txt'
-                 )
-
                  copyArtifacts(projectName: 'Multibranch-Pipleine/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
