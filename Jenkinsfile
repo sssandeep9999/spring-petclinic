@@ -263,10 +263,9 @@ pipeline {
             steps {
                 build job: 'petclinic-dev-cd',
                       parameters: [
-                          string(
-                              name: 'IMAGE_TAG',
-                              value: env.BUILD_NUMBER
-                          )
+                          string(name: 'IMAGE_TAG', value: env.BUILD_NUMBER
+                          ),
+                          string(name: 'ENVIRONMENT', value: 'dev')
                       ],
                       wait: true
             }
@@ -291,7 +290,8 @@ pipeline {
 
                      build job: 'petclinic-qa-cd',
                            parameters: [
-                               string(name: 'IMAGE_TAG', value: promotedTag)
+                               string(name: 'IMAGE_TAG', value: promotedTag),
+                               string(name: 'ENVIRONMENT', value: 'qa')
                            ],
                            wait: true,
                            propagate: true
@@ -305,7 +305,13 @@ pipeline {
                  copyArtifacts(projectName: 'Multibranch-Pipleine/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
-                     build job: 'petclinic-uat-cd', parameters: [string(name: 'IMAGE_TAG', value: promotedTag)], wait: true, propagate: true
+                     build job: 'petclinic-uat-cd',
+                           parameters: [
+                               string(name: 'IMAGE_TAG', value: promotedTag),
+                               string(name: 'ENVIRONMENT', value: 'uat')
+                           ],
+                           wait: true,
+                           propagate: true
                  }
             }
         }
@@ -322,7 +328,13 @@ pipeline {
                  copyArtifacts(projectName: 'Multibranch-Pipleine/develop', selector: lastSuccessful(), filter: 'image-tag.txt')
                  script {
                      def promotedTag = readFile('image-tag.txt').trim()
-                     build job: 'petclinic-prod-cd', parameters: [string(name: 'IMAGE_TAG', value: promotedTag)], wait: true, propagate: true
+                     build job: 'petclinic-prod-cd',
+                           parameters: [
+                               string(name: 'IMAGE_TAG', value: promotedTag),
+                               string(name: 'ENVIRONMENT', value: 'prod')
+                           ],
+                           wait: true,
+                           propagate: true
                  }
             }
         } 
