@@ -1,3 +1,28 @@
+# Spring PetClinic – DevOps Implementation
+
+> **Note:** This repository uses the open-source **Spring PetClinic** application as a sample workload to demonstrate a complete DevOps implementation. The application itself is maintained by the Spring PetClinic project. This repository focuses on the CI/CD pipeline, containerization, Kubernetes deployment, and automation built around the application.
+
+## Project Overview
+
+This repository demonstrates a production-oriented DevOps workflow for deploying the Spring PetClinic application. It includes source code management using GitHub, branch-based development, continuous integration with Jenkins, code quality analysis using SonarQube, containerization with Docker, and deployment to Kubernetes.
+
+The project follows an environment-based promotion strategy where code changes move through multiple environments using Pull Requests and Jenkins pipelines before reaching the production branch.
+
+### Key Highlights
+
+- Branch-based development workflow (`develop` → `qa` → `uat` → `master`)
+- Jenkins Multibranch Pipeline for Continuous Integration
+- Automated build using Maven
+- SonarQube integration for static code analysis
+- Docker image creation
+- Kubernetes deployment using Deployment, Service, ConfigMap, and Secret
+- Environment-specific deployment workflow
+- Pull Request based code promotion
+- Branch protection with automated Jenkins status checks
+
+
+
+
 # Spring PetClinic Sample Application [![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml)[![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml)
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spring-projects/spring-petclinic) [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=7517918)
