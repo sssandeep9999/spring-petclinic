@@ -1,5 +1,14 @@
 # Spring PetClinic – DevOps Implementation
 
+![Java](https://img.shields.io/badge/Java-17-blue?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?logo=springboot)
+![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?logo=apachemaven)
+![Jenkins](https://img.shields.io/badge/Jenkins-CI-D24939?logo=jenkins)
+![SonarQube](https://img.shields.io/badge/SonarQube-Code_Quality-4E9BCD?logo=sonarqube)
+![Docker](https://img.shields.io/badge/Docker-Containerization-2496ED?logo=docker)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestration-326CE5?logo=kubernetes)
+![License](https://img.shields.io/badge/License-Apache_2.0-green)
+
 > **Note:** This repository uses the open-source **Spring PetClinic** application as a sample workload to demonstrate a complete DevOps implementation. The application itself is maintained by the Spring PetClinic project. This repository focuses on the CI/CD pipeline, containerization, Kubernetes deployment, and automation built around the application.
 
 ## Project Overview
