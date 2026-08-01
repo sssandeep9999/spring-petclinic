@@ -11,6 +11,21 @@
 
 A production-oriented DevOps implementation of the open-source **Spring PetClinic** application demonstrating a complete CI/CD workflow using **Jenkins, Maven, SonarQube, Docker, and Kubernetes** with an environment-based deployment strategy.
 
+## 📑 Table of Contents
+
+- [Project Overview](#project-overview)
+- [Key Highlights](#key-highlights)
+- [Architecture](#architecture)
+- [Technology Stack](#technology-stack)
+- [Repository Structure](#repository-structure)
+- [Branch Strategy](#branch-strategy)
+- [CI Pipeline](#ci-pipeline)
+- [CD Pipeline](#cd-pipeline)
+- [Kubernetes Deployment](#kubernetes-deployment)
+- [Project Screenshots](#project-screenshots)
+- [Future Enhancements](#future-enhancements)
+- [Original Spring PetClinic Documentation](#original-spring-petclinic-documentation)
+
 > **Note:** This repository uses the open-source **Spring PetClinic** application as a sample workload to demonstrate a complete DevOps implementation. The application itself is maintained by the Spring PetClinic project. This repository focuses on the CI/CD pipeline, containerization, Kubernetes deployment, and automation built around the application.
 
 ## Project Overview
