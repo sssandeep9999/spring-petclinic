@@ -9,6 +9,8 @@
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestration-326CE5?logo=kubernetes)
 ![License](https://img.shields.io/badge/License-Apache_2.0-green)
 
+A production-oriented DevOps implementation of the open-source **Spring PetClinic** application demonstrating a complete CI/CD workflow using **Jenkins, Maven, SonarQube, Docker, and Kubernetes** with an environment-based deployment strategy.
+
 > **Note:** This repository uses the open-source **Spring PetClinic** application as a sample workload to demonstrate a complete DevOps implementation. The application itself is maintained by the Spring PetClinic project. This repository focuses on the CI/CD pipeline, containerization, Kubernetes deployment, and automation built around the application.
 
 ## Project Overview
