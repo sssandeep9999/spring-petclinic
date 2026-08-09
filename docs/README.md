@@ -1,44 +1,56 @@
 # Project Documentation
 
-This directory contains all documentation assets for the Spring PetClinic DevOps implementation.
+This directory contains documentation for the Spring PetClinic DevOps implementation.
 
-## Directory Structure
+## Documentation Structure
 
 ```text
 docs/
 ├── architecture/
-│   ├── architecture.drawio
-│   ├── architecture.png
-│   ├── cicd-flow.drawio
-│   ├── cicd-flow.png
-│   ├── branch-strategy.drawio
-│   ├── branch-strategy.png
-│   └── *.mmd
+│   └── architecture.mmd
 │
-├── screenshots/
-│   ├── application.png
-│   ├── jenkins-ci.png
-│   ├── jenkins-cd.png
-│   ├── sonarqube-dashboard.png
-│   ├── prometheus.png
-│   ├── grafana.png
-│   ├── kubernetes-pods.png
-│   ├── kubernetes-services.png
-│   └── hpa.png
+├── images/
+│   └── spring-petclinic-devops-architecture.png
+│
+├── spring-petclinic-devops-architecture.drawio
 │
 └── README.md
 ```
 
+## Architecture
+
+### Spring PetClinic DevOps Architecture
+
+The architecture diagram represents the end-to-end DevOps implementation covering source control, continuous integration, security scanning, artifact management, containerization, continuous delivery, Kubernetes deployment, and monitoring.
+
+![Spring PetClinic DevOps Architecture](images/spring-petclinic-devops-architecture.png)
+
+[View editable architecture diagram](spring-petclinic-devops-architecture.drawio)
+
+## DevOps Components
+
+| Component | Purpose |
+|---|---|
+| GitHub | Source code management and branch-based development |
+| Jenkins | Continuous Integration and Continuous Delivery |
+| Maven | Application build and test automation |
+| SonarQube | Static code analysis and Quality Gate |
+| Trivy | Container image security scanning |
+| Nexus Repository | Artifact repository |
+| Docker | Container image creation |
+| Docker Hub | Container image registry |
+| Kubernetes / k3d | Application deployment and orchestration |
+| ConfigMap | Kubernetes application configuration |
+| Secret | Kubernetes sensitive configuration |
+| HPA | Kubernetes horizontal pod autoscaling |
+| NodePort | Application service exposure |
+| Prometheus | Metrics collection |
+| Grafana | Monitoring and visualization |
+
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| architecture.png | High-level system architecture |
-| cicd-flow.png | Jenkins CI/CD pipeline workflow |
-| branch-strategy.png | Git branching and promotion workflow |
-| screenshots/ | Project screenshots used in the repository |
+The documentation in this directory will contain the architecture diagrams and supporting DevOps implementation documentation as the project documentation is expanded.
 
 ---
 
-All diagrams are maintained as editable `.drawio` files and exported as PNG images for documentation.
-
+Editable diagrams are maintained in `.drawio` format and exported as PNG images for documentation.

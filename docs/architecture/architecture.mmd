@@ -1,5 +1,21 @@
 %% ======================================================
 %% Spring PetClinic DevOps Architecture
 %% Source: Mermaid
-%% This file is used to generate architecture diagrams.
 %% ======================================================
+
+flowchart LR
+
+    SCM["Source Code Management<br/><br/>GitHub Repository<br/>Feature Branch<br/>Pull Request<br/>Environment Promotion<br/><br/>Branch Promotion:<br/>feature/* → develop → qa → uat → master"]
+
+    CI["Continuous Integration<br/><br/>Jenkins Multibranch Pipeline<br/>↓<br/>Checkout<br/>↓<br/>Maven Build & Test<br/>↓<br/>Trivy Scan<br/>↓<br/>SonarQube Analysis<br/>↓<br/>Quality Gate<br/>↓<br/>Package JAR<br/>↓<br/>Nexus Repository<br/>↓<br/>Docker Build<br/>↓<br/>Trivy Image Scan<br/>↓<br/>Docker Hub"]
+
+    CD["Continuous Delivery<br/><br/>Jenkins CD Pipeline<br/>↓<br/>Image Promotion<br/>↓<br/>Kubernetes Deployment<br/>↓<br/>Rolling Update"]
+
+    K8S["Kubernetes Platform<br/><br/>k3d Kubernetes Cluster<br/>↓<br/>Deployment<br/>↓<br/>ConfigMap + Secret<br/>↓<br/>Spring PetClinic Pods<br/>↓<br/>HPA<br/>↓<br/>NodePort Service<br/>↓<br/>Spring PetClinic Pods"]
+
+    MON["Monitoring<br/><br/>Prometheus<br/>↓<br/>Metrics Collection<br/>↓<br/>Grafana<br/>↓<br/>Monitoring Dashboard"]
+
+    SCM --> CI
+    CI --> CD
+    CD --> K8S
+    K8S --> MON
