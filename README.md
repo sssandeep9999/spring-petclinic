@@ -34,6 +34,14 @@ This repository demonstrates a production-oriented DevOps workflow for deploying
 
 The project follows an environment-based promotion strategy where code changes move through multiple environments using Pull Requests and Jenkins pipelines before reaching the production branch.
 
+## DevOps Architecture
+
+The following architecture illustrates the end-to-end DevOps implementation, including GitHub-based source control, Jenkins CI/CD, Maven, SonarQube, Trivy, Nexus Repository, Docker, Docker Hub, Kubernetes, and Prometheus/Grafana monitoring.
+
+![Spring PetClinic DevOps Architecture](docs/images/spring-petclinic-devops-architecture.png)
+
+[View editable architecture diagram](docs/spring-petclinic-devops-architecture.drawio)
+
 ### Key Highlights
 
 - Branch-based development workflow (`develop` → `qa` → `uat` → `master`)
