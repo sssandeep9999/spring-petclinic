@@ -1,0 +1,76 @@
+<mxfile host="Electron">
+  <diagram name="Page-1" id="5Fv5NRSbrFgowKscHKCb">
+    <mxGraphModel dx="1195" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=24;fontStyle=1;" value="Spring PetClinic DevOps – CI/CD Pipeline Flow" vertex="1">
+          <mxGeometry height="40" width="700" x="230" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="github" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;fontStyle=1;spacing=10;" value="GitHub&lt;br&gt;&lt;br&gt;Source Code&lt;br&gt;Feature Branch&lt;br&gt;Pull Request" vertex="1">
+          <mxGeometry height="90" width="350" x="410" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="jenkins-ci" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=15;fontStyle=1;spacing=10;" value="Jenkins Multibranch Pipeline&lt;br&gt;&lt;br&gt;Continuous Integration" vertex="1">
+          <mxGeometry height="90" width="350" x="410" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="maven" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=15;fontStyle=1;spacing=10;" value="Maven&lt;br&gt;&lt;br&gt;Build + Unit Tests&lt;br&gt;Package JAR" vertex="1">
+          <mxGeometry height="90" width="350" x="410" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="sonarqube" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;fontStyle=1;spacing=10;" value="SonarQube&lt;br&gt;&lt;br&gt;Static Code Analysis&lt;br&gt;Quality Gate" vertex="1">
+          <mxGeometry height="90" width="350" x="410" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="trivy-code" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=15;fontStyle=1;spacing=10;" value="Trivy&lt;br&gt;&lt;br&gt;Security Scanning" vertex="1">
+          <mxGeometry height="80" width="350" x="410" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="nexus" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=15;fontStyle=1;spacing=10;" value="Nexus Repository&lt;br&gt;&lt;br&gt;Maven Artifact Storage" vertex="1">
+          <mxGeometry height="80" width="350" x="410" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="docker" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;fontStyle=1;spacing=10;" value="Docker&lt;br&gt;&lt;br&gt;Container Image Build" vertex="1">
+          <mxGeometry height="80" width="350" x="410" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="trivy-image" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=15;fontStyle=1;spacing=10;" value="Trivy&lt;br&gt;&lt;br&gt;Container Image Scan" vertex="1">
+          <mxGeometry height="80" width="350" x="410" y="970" as="geometry" />
+        </mxCell>
+        <mxCell id="dockerhub" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;fontStyle=1;spacing=10;" value="Docker Hub&lt;br&gt;&lt;br&gt;Container Image Registry" vertex="1">
+          <mxGeometry height="80" width="350" x="410" y="1090" as="geometry" />
+        </mxCell>
+        <mxCell id="jenkins-cd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=15;fontStyle=1;spacing=10;" value="Jenkins CD Pipeline&lt;br&gt;&lt;br&gt;Continuous Delivery" vertex="1">
+          <mxGeometry height="80" width="350" x="410" y="1210" as="geometry" />
+        </mxCell>
+        <mxCell id="kubernetes" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;fontStyle=1;spacing=10;" value="Kubernetes / k3d&lt;br&gt;&lt;br&gt;Deployment&lt;br&gt;ConfigMap + Secret&lt;br&gt;HPA + NodePort" vertex="1">
+          <mxGeometry height="100" width="350" x="410" y="1330" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" edge="1" parent="1" source="github" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="jenkins-ci">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" edge="1" parent="1" source="jenkins-ci" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="maven">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" edge="1" parent="1" source="maven" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="sonarqube">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" edge="1" parent="1" source="sonarqube" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="trivy-code">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" edge="1" parent="1" source="trivy-code" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="nexus">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" edge="1" parent="1" source="nexus" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="docker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" edge="1" parent="1" source="docker" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="trivy-image">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" edge="1" parent="1" source="trivy-image" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="dockerhub">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9" edge="1" parent="1" source="dockerhub" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="jenkins-cd">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge10" edge="1" parent="1" source="jenkins-cd" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;" target="kubernetes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
