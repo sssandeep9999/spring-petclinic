@@ -42,6 +42,8 @@ The following architecture illustrates the end-to-end DevOps implementation, inc
 
 [View editable architecture diagram](docs/spring-petclinic-devops-architecture.drawio)
 
+📚 **[Complete DevOps Documentation](docs/README.md)**
+
 ### Key Highlights
 
 - Branch-based development workflow (`develop` → `qa` → `uat` → `master`)
