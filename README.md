@@ -121,6 +121,8 @@ This project extends the Spring PetClinic application with a production-oriented
 
 AWS infrastructure and EKS provisioning are maintained separately using Terraform.
 
+**Terraform repository:** [sssandeep9999/Terraform](https://github.com/sssandeep9999/Terraform)
+
 
 ## Understanding the Spring Petclinic application with a few diagrams
 
