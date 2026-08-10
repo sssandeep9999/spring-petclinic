@@ -10,7 +10,8 @@ docs/
 │   └── architecture.mmd
 │
 ├── images/
-│   └── spring-petclinic-devops-architecture.png
+│   ├── spring-petclinic-devops-architecture.png
+│   └── cicd-flow.png
 │
 ├── spring-petclinic-devops-architecture.drawio
 │
@@ -26,6 +27,14 @@ The architecture diagram represents the end-to-end DevOps implementation coverin
 ![Spring PetClinic DevOps Architecture](images/spring-petclinic-devops-architecture.png)
 
 [View editable architecture diagram](spring-petclinic-devops-architecture.drawio)
+
+### CI/CD Pipeline Flow
+
+The CI/CD pipeline flow illustrates how source code moves from GitHub through Jenkins CI, Maven, SonarQube, Trivy, Nexus, Docker, Docker Hub, Jenkins CD, and Kubernetes.
+
+![Spring PetClinic CI/CD Pipeline Flow](images/cicd-flow.png)
+
+[View editable CI/CD flow diagram](architecture/cicd-flow.drawio)
 
 ## DevOps Components
 
@@ -49,7 +58,7 @@ The architecture diagram represents the end-to-end DevOps implementation coverin
 
 ## Documentation
 
-The documentation in this directory will contain the architecture diagrams and supporting DevOps implementation documentation as the project documentation is expanded.
+The documentation in this directory contains the architecture diagrams and supporting DevOps implementation documentation.
 
 ---
 
