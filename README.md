@@ -54,8 +54,17 @@ The following architecture illustrates the end-to-end DevOps implementation, inc
 - Pull Request based code promotion
 - Branch protection with automated Jenkins status checks
 
+## Branch Strategy
 
+The branch strategy follows a controlled environment-based promotion model:
 
+`feature/* → develop → qa → uat → master`
+
+Changes are developed in feature branches and promoted through Pull Requests, CI validation, QA testing, UAT, and release approval before reaching the production branch.
+
+![Spring PetClinic DevOps Branch Strategy](docs/images/branch-strategy.png)
+
+[View editable branch strategy diagram](docs/architecture/branch-strategy.drawio)
 
 # Spring PetClinic Sample Application [![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml)[![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml)
 

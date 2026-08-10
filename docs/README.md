@@ -7,11 +7,14 @@ This directory contains documentation for the Spring PetClinic DevOps implementa
 ```text
 docs/
 ├── architecture/
-│   └── architecture.mmd
+│   ├── architecture.mmd
+│   ├── branch-strategy.drawio
+│   └── cicd-flow.drawio
 │
 ├── images/
 │   ├── spring-petclinic-devops-architecture.png
-│   └── cicd-flow.png
+│   ├── cicd-flow.png
+│   └── branch-strategy.png
 │
 ├── spring-petclinic-devops-architecture.drawio
 │
@@ -35,6 +38,14 @@ The CI/CD pipeline flow illustrates how source code moves from GitHub through Je
 ![Spring PetClinic CI/CD Pipeline Flow](images/cicd-flow.png)
 
 [View editable CI/CD flow diagram](architecture/cicd-flow.drawio)
+
+### Branch Strategy
+
+The branch strategy illustrates how changes are promoted through the development lifecycle from feature branches to the master production branch, with code review, CI, QA, UAT, and production release gates.
+
+![Spring PetClinic DevOps Branch Strategy](images/branch-strategy.png)
+
+[View editable branch strategy diagram](architecture/branch-strategy.drawio)
 
 ## DevOps Components
 
