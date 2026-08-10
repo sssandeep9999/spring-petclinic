@@ -74,3 +74,14 @@ The documentation in this directory contains the architecture diagrams and suppo
 ---
 
 Editable diagrams are maintained in `.drawio` format and exported as PNG images for documentation.
+
+### Implementation Documentation
+
+- [Monitoring and Observability](monitoring.md)
+- [Security](security.md)
+
+### Infrastructure
+
+AWS infrastructure and Amazon EKS provisioning are maintained separately using Terraform.
+
+**Terraform repository:** https://github.com/sssandeep9999/Terraform
