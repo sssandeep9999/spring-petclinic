@@ -70,6 +70,58 @@ Changes are developed in feature branches and promoted through Pull Requests, CI
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spring-projects/spring-petclinic) [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=7517918)
 
+## DevOps Implementation
+
+This project extends the Spring PetClinic application with a production-oriented DevOps workflow covering continuous integration, security scanning, artifact management, containerization, continuous delivery, Kubernetes deployment, and monitoring.
+
+### Continuous Integration
+
+* Jenkins Multibranch Pipeline
+* Maven build and test automation
+* JUnit and integration testing
+* JaCoCo code coverage
+* SonarQube static code analysis and Quality Gate
+* Trivy filesystem and dependency vulnerability scanning
+
+### Continuous Delivery
+
+* Jenkins-based environment-specific CD pipelines
+* DEV → QA → UAT → PROD promotion workflow
+* Pull Request-based environment promotion
+* Manual approval gates
+* Smoke testing and deployment verification
+* Kubernetes rolling updates
+* Rollout verification and rollback support
+* Pipeline notifications
+
+### Containerization and Artifacts
+
+* Docker containerization
+* Nexus Repository for Maven artifacts
+* Docker Hub for container images
+* Trivy container image vulnerability scanning
+
+### Kubernetes
+
+* Kubernetes deployment using native manifests
+* Application Deployment and Service
+* ConfigMap and Secret management
+* Liveness and readiness probes
+* CPU and memory resource requests and limits
+* Horizontal Pod Autoscaler (HPA)
+* NodePort-based application exposure
+* Kubernetes deployment and rollout management
+
+### Monitoring
+
+* Prometheus metrics collection
+* Grafana dashboards and visualization
+
+### Infrastructure
+
+AWS infrastructure and EKS provisioning are maintained separately using Terraform.
+
+
 ## Understanding the Spring Petclinic application with a few diagrams
 
 See the presentation here:  
