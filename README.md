@@ -123,6 +123,17 @@ AWS infrastructure and EKS provisioning are maintained separately using Terrafor
 
 **Terraform repository:** [sssandeep9999/Terraform](https://github.com/sssandeep9999/Terraform)
 
+## Security
+
+Security controls are integrated throughout the CI/CD and Kubernetes deployment workflow.
+
+* **SonarQube** — static code analysis and Quality Gate enforcement
+* **Trivy** — filesystem/dependency vulnerability scanning
+* **Trivy** — container image vulnerability scanning
+* **Jenkins Credentials** — secure storage of CI/CD credentials
+* **Kubernetes Secrets** — sensitive application configuration
+* **No hardcoded credentials** — secrets are kept outside source code
+
 
 ## Understanding the Spring Petclinic application with a few diagrams
 
