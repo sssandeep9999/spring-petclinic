@@ -84,4 +84,12 @@ Editable diagrams are maintained in `.drawio` format and exported as PNG images 
 
 AWS infrastructure and Amazon EKS provisioning are maintained separately using Terraform.
 
-**Terraform repository:** https://github.com/sssandeep9999/Terraform
+The Terraform repository provisions the AWS infrastructure required for the DevOps environment, including:
+
+- VPC with public and private subnets
+- Internet Gateway and NAT Gateway
+- Amazon EKS cluster and managed node group
+- IAM roles and policies
+- EC2 instance
+
+**Terraform infrastructure repository:** [Terraform](https://github.com/sssandeep9999/Terraform)
